@@ -1,13 +1,14 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import axios from 'axios'
 import { ShopContext } from "../context/ShopContext";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [currentState, setCurrentState] = useState("Sign Up");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { backendUrl, token, setToken } = useContext(ShopContext);
+  const { backendUrl, token, setToken, navigate } = useContext(ShopContext);
 
   const onsubmitHandler = async (event) => {
     event.preventDefault();
@@ -22,7 +23,7 @@ const Login = () => {
           localStorage.setItem("token", response.data.token);
           setToken(response.data.token);
         } else {
-          alert(response.data.message);
+          toast.error(response.data.message);
         }
       } else {
         const response = await axios.post(backendUrl + "/api/user/login", {
@@ -33,14 +34,20 @@ const Login = () => {
           localStorage.setItem("token", response.data.token);
           setToken(response.data.token);
         } else {
-          alert(response.data.message);
+          toast.error(response.data.message);
         }
       }
     } catch (error) {
       console.log(error);
-      alert("Error during authentication");
+      toast.error("Error during authentication");
     }
   };
+
+  useEffect(() => {
+   if (token) {
+    navigate('/')
+   }
+  }, [token]);
 
   return (
     <form
